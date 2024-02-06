@@ -57,7 +57,8 @@ Future<void> main() async {
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
+  await FlutterDownloader.initialize(debug: false, ignoreSsl: true);
+  FirebaseMessaging.instance.getToken().then((value) => print(value));
   await di.init();
   final NotificationAppLaunchDetails? notificationAppLaunchDetails =
       await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
