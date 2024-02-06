@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '944110984728',
     projectId: 'aigam-shop',
     storageBucket: 'aigam-shop.appspot.com',
-    iosBundleId: 'com.aigam.shop',
+    iosBundleId: 'com.club.elisir',
   );
 }

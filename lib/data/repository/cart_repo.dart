@@ -21,16 +21,18 @@ class CartRepo {
 
   Future<ApiResponse> getCartListData() async {
     try {
-     final dioClient= DioClient(AppConstants.baseUrl,Dio(), loggingInterceptor: LoggingInterceptor(), sharedPreferences:sl<SharedPreferences>());
-     print(sharedPreferences?.getString(AppConstants.userLoginToken));
+      final dioClient = DioClient(AppConstants.baseUrl, Dio(),
+          loggingInterceptor: LoggingInterceptor(),
+          sharedPreferences: sl<SharedPreferences>());
+      //  print(sharedPreferences?.getString(AppConstants.userLoginToken));
       final response = await dioClient!.get(
           '${AppConstants.getCartDataUri}?guest_id=${Provider.of<AuthProvider>(Get.context!, listen: false).getGuestToken()}',
           options: Options(validateStatus: (_) => true));
-      print(response.requestOptions.path);
-      print("PATH");
+      // print(response.requestOptions.path);
+      // print("PATH");
       return ApiResponse.withSuccess(response);
     } catch (e) {
-      print("getCartListDataError $e");
+      // print("getCartListDataError $e");
       return ApiResponse.withError(ApiErrorHandler.getMessage(e));
     }
   }
