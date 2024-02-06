@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_sixvalley_ecommerce/data/datasource/remote/dio/dio_client.dart';
@@ -13,6 +15,8 @@ import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../view/screen/checkout/widget/shipping_details_widget.dart';
+
 class CartRepo {
   final DioClient? dioClient;
   final SharedPreferences? sharedPreferences;
@@ -21,18 +25,16 @@ class CartRepo {
 
   Future<ApiResponse> getCartListData() async {
     try {
-      final dioClient = DioClient(AppConstants.baseUrl, Dio(),
-          loggingInterceptor: LoggingInterceptor(),
-          sharedPreferences: sl<SharedPreferences>());
-      //  print(sharedPreferences?.getString(AppConstants.userLoginToken));
+     final dioClient= DioClient(AppConstants.baseUrl,Dio(), loggingInterceptor: LoggingInterceptor(), sharedPreferences:sl<SharedPreferences>());
+     print(sharedPreferences?.getString(AppConstants.userLoginToken));
       final response = await dioClient!.get(
           '${AppConstants.getCartDataUri}?guest_id=${Provider.of<AuthProvider>(Get.context!, listen: false).getGuestToken()}',
           options: Options(validateStatus: (_) => true));
-      // print(response.requestOptions.path);
-      // print("PATH");
+      print(response.requestOptions.path);
+      print("PATH");
       return ApiResponse.withSuccess(response);
     } catch (e) {
-      // print("getCartListDataError $e");
+      print("getCartListDataError $e");
       return ApiResponse.withError(ApiErrorHandler.getMessage(e));
     }
   }
@@ -110,16 +112,17 @@ class CartRepo {
     }
   }
 
-  Future<ApiResponse> addShippingMethod(int? id, String? cartGroupId) async {
+  Future<ApiResponse> addShippingMethod(int? id, String? cartGroupId, PvzModel? pvz) async {
     if (kDebugMode) {
       print('===>${{"id": id, "cart_group_id": cartGroupId}}');
     }
     try {
       final response =
-          await dioClient!.post(AppConstants.chooseShippingMethod, data: {
+      await dioClient!.post(AppConstants.chooseShippingMethod, data: {
         "id": id,
         'guest_id': Provider.of<AuthProvider>(Get.context!, listen: false)
             .getGuestToken(),
+        'sdek': pvz != null ? jsonEncode(pvz) : "",
         "cart_group_id": cartGroupId
       });
       return ApiResponse.withSuccess(response);

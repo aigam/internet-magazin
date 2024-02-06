@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyD8mw0OMFP4wcmgcFqNeSMxuQwhe6Vz1jk</string>
+	<string>AIzaSyCnCUGZvEgYSFrRqTRK4KcfHZF4D1bTT1o</string>
 	<key>GCM_SENDER_ID</key>
-	<string>944110984728</string>
+	<string>49707365661</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.club.elisir</string>
 	<key>PROJECT_ID</key>
-	<string>aigam-shop</string>
+	<string>elisir-club</string>
 	<key>STORAGE_BUCKET</key>
-	<string>aigam-shop.appspot.com</string>
+	<string>elisir-club.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:944110984728:ios:5c7b7289202209cd70ed6d</string>
+	<string>1:49707365661:ios:11ca8227a8519d8088ddf4</string>
 </dict>
 </plist>

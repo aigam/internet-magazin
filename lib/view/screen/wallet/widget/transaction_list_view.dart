@@ -4,7 +4,6 @@ import 'package:flutter_sixvalley_ecommerce/data/model/response/transaction_mode
 import 'package:flutter_sixvalley_ecommerce/provider/wallet_transaction_provider.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/images.dart';
 import 'package:flutter_sixvalley_ecommerce/view/basewidget/no_internet_screen.dart';
-// import 'package:flutter_sixvalley_ecommerce/view/screen/chat/widget/chat_shimmer.dart';
 import 'package:flutter_sixvalley_ecommerce/view/screen/home/shimmer/transaction_shimmer.dart';
 import 'package:flutter_sixvalley_ecommerce/view/screen/wallet/widget/transaction_widget.dart';
 import 'package:provider/provider.dart';

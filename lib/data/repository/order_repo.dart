@@ -16,6 +16,8 @@ import 'package:http_parser/http_parser.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
+import '../../provider/cart_provider.dart';
+
 class OrderRepo {
   final DioClient? dioClient;
 
@@ -69,6 +71,43 @@ class OrderRepo {
     }
   }
 
+  static Future<Map<String, String>> tinkoff(String? addressID, String token, double amount, double shippingAmount) async {
+    try {
+      http.MultipartRequest request = http.MultipartRequest('POST', Uri.parse('${AppConstants.baseUrl}${AppConstants.chooseTinkof}'));
+
+      if (token != "") {
+        request.headers.addAll(<String, String>{'Authorization': 'Bearer $token'});
+      }
+
+      Map<String, String> fields = {};
+
+      fields.addAll(<String, String>{
+        'address_id': addressID??'',
+        'amount': "$amount",
+        'shippingAmount': "$shippingAmount",
+        'pvz': jsonEncode(Provider.of<CartProvider>(Get.context!, listen: false).pvz ?? '')
+      });
+
+      if ((Provider.of<AuthProvider>(Get.context!, listen: false).getGuestToken() ?? '') != '') {
+        fields['guest_id'] = Provider.of<AuthProvider>(Get.context!, listen: false).getGuestToken()!;
+      }
+
+      request.fields.addAll(fields);
+
+      http.StreamedResponse response = await request.send();
+      final respStr = await response.stream.bytesToString();
+
+      var body = jsonDecode(respStr);
+
+      if (body["url"] != null) {
+        return {"url": body["url"], "error": ""};
+      } else {
+        return {"url": "", "error": body["error"] ?? "Произошла ошибка"};
+      }
+    } catch (e) {
+      return {"url": "", "error": e.toString()};
+    }
+  }
 
   Future<ApiResponse> offlinePaymentPlaceOrder(String? addressID, String? couponCode, String? couponDiscountAmount, String? billingAddressId, String? orderNote, List <String?> typeKey, List<String> typeValue, int? id, String name, String? paymentNote) async {
     try {

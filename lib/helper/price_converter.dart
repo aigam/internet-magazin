@@ -15,9 +15,10 @@ class PriceConverter {
     bool inRight = Provider.of<SplashProvider>(context, listen: false).configModel!.currencySymbolPosition == 'right';
 
     return '${inRight ? '' : Provider.of<SplashProvider>(context, listen: false).myCurrency!.symbol}'
-        '${(singleCurrency? price : price! * Provider.of<SplashProvider>(context, listen: false).myCurrency!.exchangeRate!
+    '$price'
+        /*'${(singleCurrency? price : price! * Provider.of<SplashProvider>(context, listen: false).myCurrency!.exchangeRate!
         * (1/Provider.of<SplashProvider>(context, listen: false).usdCurrency!.exchangeRate!))!.toStringAsFixed(Provider.of<SplashProvider>(context,listen: false).configModel!.decimalPointSettings??1).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}'
-        '${inRight ? Provider.of<SplashProvider>(context, listen: false).myCurrency!.symbol : ''}';
+        */'${inRight ? Provider.of<SplashProvider>(context, listen: false).myCurrency!.symbol : ''}';
   }
 
   static double? convertWithDiscount(BuildContext context, double? price, double? discount, String? discountType) {

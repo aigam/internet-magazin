@@ -90,6 +90,7 @@ class AppConstants {
   static const String getShippingMethod = '/api/v1/shipping-method/by-seller';
   static const String chooseShippingMethod =
       '/api/v1/shipping-method/choose-for-order';
+  static const String chooseTinkof = '/api/v1/cart/tinkof';
   static const String chosenShippingMethod = '/api/v1/shipping-method/chosen';
   static const String checkPhoneUri = '/api/v1/auth/check-phone';
   static const String resendPhoneOtpUri = '/api/v1/auth/resend-otp-check-phone';

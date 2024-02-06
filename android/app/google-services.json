@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "944110984728",
-    "project_id": "aigam-shop",
-    "storage_bucket": "aigam-shop.appspot.com"
+    "project_number": "49707365661",
+    "project_id": "elisir-club",
+    "storage_bucket": "elisir-club.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:944110984728:android:cdd702e51df88cbd70ed6d",
+        "mobilesdk_app_id": "1:49707365661:android:b5887e51f69d95d488ddf4",
         "android_client_info": {
           "package_name": "com.club.elisir"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBNmWVxG_q7G2XiQomJfcoDrYwub6jUKaM"
+          "current_key": "AIzaSyB0XS8a1BCg2Z4KMi5ljxq5R78_83XPnLU"
         }
       ],
       "services": {

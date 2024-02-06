@@ -193,6 +193,8 @@ class ConfigModel {
       json['payment_methods'].forEach((v) {
         paymentMethods!.add(PaymentMethods.fromJson(v));
       });
+    } else {
+      paymentMethods = [PaymentMethods(keyName: "tinkof", additionalDatas: AdditionalDatas(gatewayTitle: "Тинькоф", gatewayImage: "https://elisirclub.ru/assets/front-end/img/tinkoff.svg"))];
     }
     offlinePayment = json['offline_payment'] != null ? OfflinePayment.fromJson(json['offline_payment']) : null;
     paymentMethodImagePath = json['payment_method_image_path'];

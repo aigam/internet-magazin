@@ -11,7 +11,8 @@ class OrderPlaceSuccessDialog extends StatelessWidget {
   final IconData icon;
   final String? title;
   final String? description;
-  const OrderPlaceSuccessDialog({Key? key, this.isFailed = false, this.rotateAngle = 0, required this.icon, required this.title, required this.description}) : super(key: key);
+  final Function()? callback;
+  const OrderPlaceSuccessDialog({Key? key, this.isFailed = false, this.rotateAngle = 0, required this.icon, required this.title, required this.description, this.callback}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +27,13 @@ class OrderPlaceSuccessDialog extends StatelessWidget {
           Text(description!, textAlign: TextAlign.center, style: titilliumRegular),
           const SizedBox(height: Dimensions.paddingSizeExtraLarge),
           SizedBox(height: 35, width: 90, child: CustomButton(
-            radius: 5, buttonText: getTranslated('ok', context), onTap: () => Navigator.pop(context))),
+            radius: 5, buttonText: getTranslated('ok', context), onTap: () {
+              if (callback != null) {
+                callback;
+              } else {
+                Navigator.pop(context);
+              }
+          })),
         ]),
       ),
     );

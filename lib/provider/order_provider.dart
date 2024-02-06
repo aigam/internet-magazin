@@ -20,7 +20,6 @@ import 'package:flutter_sixvalley_ecommerce/provider/auth_provider.dart';
 import 'package:flutter_sixvalley_ecommerce/view/basewidget/show_custom_snakbar.dart';
 import 'package:flutter_sixvalley_ecommerce/view/screen/cart/cart_screen.dart';
 import 'package:flutter_sixvalley_ecommerce/view/screen/payment/digital_payment_order_place.dart';
-// import 'package:flutter_sixvalley_ecommerce/view/screen/payment/payment_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -169,6 +168,7 @@ class OrderProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     ApiResponse apiResponse;
+
     isfOffline
         ? apiResponse = await orderRepo!.offlinePaymentPlaceOrder(
             addressID,
@@ -186,6 +186,7 @@ class OrderProvider with ChangeNotifier {
                 couponCode, couponAmount, billingAddressId, orderNote)
             : apiResponse = await orderRepo!.placeOrder(addressID, couponCode,
                 couponAmount, billingAddressId, orderNote);
+
     _isLoading = false;
     if (apiResponse.response != null &&
         apiResponse.response!.statusCode == 200) {
@@ -282,24 +283,34 @@ class OrderProvider with ChangeNotifier {
   bool offlineChecked = false;
   bool codChecked = false;
   bool walletChecked = false;
+  bool tinkof = false;
 
   void setOfflineChecked(String type) {
     if (type == 'offline') {
       offlineChecked = !offlineChecked;
       codChecked = false;
       walletChecked = false;
+      tinkof = false;
       _paymentMethodIndex = -1;
       setOfflinePaymentMethodSelectedIndex(0);
     } else if (type == 'cod') {
       codChecked = !codChecked;
       offlineChecked = false;
       walletChecked = false;
+      tinkof = false;
       _paymentMethodIndex = -1;
     } else if (type == 'wallet') {
       walletChecked = !walletChecked;
       offlineChecked = false;
       codChecked = false;
+      tinkof = false;
       _paymentMethodIndex = -1;
+    } else if (type == 'tinkof') {
+      walletChecked = false;
+      offlineChecked = false;
+      codChecked = false;
+      tinkof = true;
+      _paymentMethodIndex = 0;
     }
 
     notifyListeners();

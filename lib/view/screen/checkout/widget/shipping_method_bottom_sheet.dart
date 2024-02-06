@@ -20,6 +20,7 @@ class ShippingMethodBottomSheet extends StatefulWidget {
 
 class ShippingMethodBottomSheetState extends State<ShippingMethodBottomSheet> {
   int selectedIndex = 0;
+  bool sdek = false;
   @override
   void initState() {
     if(Provider.of<CartProvider>(context, listen: false).shippingList != null && Provider.of<CartProvider>(context, listen: false).shippingList!.isNotEmpty){
@@ -59,6 +60,13 @@ class ShippingMethodBottomSheetState extends State<ShippingMethodBottomSheet> {
                       itemCount: order.shippingList![widget.sellerIndex].shippingMethodList!.length,
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
+                        var title = order.shippingList![widget.sellerIndex].shippingMethodList![index].title ?? "";
+
+                        if (title.contains("Сдэк")) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            Provider.of<CartProvider>(context, listen: false).setSdek(true, order.shippingList![widget.sellerIndex].shippingMethodList![selectedIndex].id ?? 0);
+                          });
+                        }
 
                         return Padding(padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
                           child: Container(decoration: BoxDecoration(
@@ -70,6 +78,12 @@ class ShippingMethodBottomSheetState extends State<ShippingMethodBottomSheet> {
                               onTap: (){
                                 setState(() {
                                   selectedIndex = index;
+
+                                  if (title.contains("Сдэк")) {
+                                    sdek = true;
+                                  } else {
+                                    sdek = false;
+                                  }
                                 });
                               },
                               child: Padding(
@@ -79,10 +93,10 @@ class ShippingMethodBottomSheetState extends State<ShippingMethodBottomSheet> {
                                   const Icon(Icons.check_circle, color: Colors.green,): Icon(Icons.circle_outlined, color: Theme.of(context).hintColor,),
                                   const SizedBox(width: Dimensions.paddingSizeSmall),
                                   Expanded(
-                                    child: Text('${order.shippingList![widget.sellerIndex].shippingMethodList![index].title} (Duration ${order.shippingList![widget.sellerIndex].shippingMethodList![index].duration})'),),
+                                    child: Text('$title ${title.contains("Сдэк") ? "" : "(Duration ${order.shippingList![widget.sellerIndex].shippingMethodList![index].duration})"}'),),
                                   const SizedBox(width: Dimensions.paddingSizeSmall),
 
-                                  Text(' ${PriceConverter.convertPrice(context, order.shippingList![widget.sellerIndex].shippingMethodList![index].cost)}',
+                                  if (!title.contains("Сдэк")) Text(' ${PriceConverter.convertPrice(context, order.shippingList![widget.sellerIndex].shippingMethodList![index].cost)}',
                                     style: textBold.copyWith(fontSize: Dimensions.fontSizeLarge),)
                                 ],),
                               ),
@@ -96,6 +110,7 @@ class ShippingMethodBottomSheetState extends State<ShippingMethodBottomSheet> {
                   const SizedBox(height: Dimensions.paddingSizeDefault,),
                   CustomButton(buttonText: '${getTranslated('select', context)}', onTap: (){
                     Provider.of<CartProvider>(context, listen: false).setSelectedShippingMethod(selectedIndex, widget.sellerIndex);
+                    Provider.of<CartProvider>(context, listen: false).setSdek(sdek, order.shippingList![widget.sellerIndex].shippingMethodList![selectedIndex].id ?? 0);
                     ShippingMethodModel shipping = ShippingMethodModel();
                     shipping.id = order.shippingList![widget.sellerIndex].shippingMethodList![selectedIndex].id;
                     shipping.duration = widget.groupId;

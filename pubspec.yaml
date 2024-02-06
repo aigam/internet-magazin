@@ -3,7 +3,7 @@ description: A new Flutter setup application for starting a project.
 
 publish_to: 'none'
 
-version: 1.0.0+9
+version: 1.0.0+8
 
 environment:
   sdk: '>=2.18.0 <3.0.0'
@@ -25,7 +25,7 @@ dependencies:
   shimmer: ^2.0.0-nullsafety.0
   url_launcher: ^6.0.2
   image_picker: ^0.8.4+8
-  webview_flutter: ^3.0.0
+  webview_flutter: ^3.0.4
   flutter_html: ^3.0.0-alpha.3
   share: ^2.0.1
   photo_view: ^0.14.0

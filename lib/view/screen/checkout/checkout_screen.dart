@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_sixvalley_ecommerce/data/model/response/cart_model.dart';
 import 'package:flutter_sixvalley_ecommerce/helper/price_converter.dart';
@@ -25,6 +27,9 @@ import 'package:flutter_sixvalley_ecommerce/view/screen/checkout/widget/wallet_p
 import 'package:flutter_sixvalley_ecommerce/view/screen/dashboard/dashboard_screen.dart';
 import 'package:flutter_sixvalley_ecommerce/view/screen/offline_payment/offline_payment.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+
+import '../../../data/repository/order_repo.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final List<CartModel> cartList;
@@ -54,12 +59,13 @@ class CheckoutScreenState extends State<CheckoutScreen> {
   double _order = 0;
   late bool _billingAddress;
   double? _couponDiscount;
+  var shippingPrice = 0.0;
 
 
   TextEditingController paymentByController = TextEditingController();
   TextEditingController transactionIdController = TextEditingController();
   TextEditingController paymentNoteController = TextEditingController();
-
+  InAppWebViewGroupOptions? options;
 
 
   @override
@@ -81,12 +87,30 @@ class CheckoutScreenState extends State<CheckoutScreen> {
     }
 
     _billingAddress = Provider.of<SplashProvider>(Get.context!, listen: false).configModel!.billingInputByCustomer == 1;
+    _initData();
+  }
 
+  void _initData() async {
+    if (Platform.isAndroid) {
+      await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
+    }
+
+    options = InAppWebViewGroupOptions(
+      crossPlatform: InAppWebViewOptions(
+          transparentBackground: true,
+          useShouldOverrideUrlLoading: true
+      ),
+      android: AndroidInAppWebViewOptions(
+          useHybridComposition: true
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     _order = widget.totalOrderAmount + widget.discount;
+    shippingPrice = Provider.of<CartProvider>(context, listen: true).sdekPrice;
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       key: _scaffoldKey,
@@ -103,9 +127,11 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                         padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
                         child: CustomButton(
                           onTap: () async {
-                            if(orderProvider.addressIndex == null && !widget.onlyDigital) {
+                            if (cartProvider.sdek && cartProvider.pvz.id == null) {
+                              showCustomSnackBar('Выберите пункт выдачи Сдэк', context, isToaster: true);
+                            } else if(!cartProvider.sdek && orderProvider.addressIndex == null && !widget.onlyDigital) {
                               showCustomSnackBar(getTranslated('select_a_shipping_address', context), context, isToaster: true);
-                            }else if(orderProvider.billingAddressIndex == null ){
+                            }else if(!cartProvider.sdek && orderProvider.billingAddressIndex == null ){
                               showCustomSnackBar(getTranslated('select_a_billing_address', context), context, isToaster: true);
 
                             }
@@ -126,12 +152,26 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                               String orderNote = orderProvider.orderNoteController.text.trim();
                               String couponCode = couponProvider.discount != null && couponProvider.discount != 0? couponProvider.couponCode : '';
                               String couponCodeAmount = couponProvider.discount != null && couponProvider.discount != 0? couponProvider.discount.toString() : '0';
-                              String addressId = !widget.onlyDigital?profileProvider.addressList[orderProvider.addressIndex!].id.toString():'';
+                              String addressId = !widget.onlyDigital&&orderProvider.addressIndex != null?profileProvider.addressList[orderProvider.addressIndex!].id.toString():'';
                               String billingAddressId = (_billingAddress)?
                               profileProvider.billingAddressList[orderProvider.billingAddressIndex!].id.toString() : '';
 
 
-                              if(orderProvider.paymentMethodIndex != -1){
+                              if (orderProvider.tinkof) {
+                                print('tinkof');
+                                await OrderRepo.tinkoff(
+                                    widget.onlyDigital ? '': addressId,
+                                    Provider.of<AuthProvider>(context, listen: false).getUserToken(),
+                                    (_order + (shippingPrice > 0 ? shippingPrice : widget.shippingFee) - widget.discount - _couponDiscount! + widget.tax),
+                                    (shippingPrice > 0 ? shippingPrice : widget.shippingFee)
+                                ).then((value) {
+                                  if (value["url"] != "") {
+                                    tinkof_call(value["url"]!);
+                                  } else {
+                                    showCustomSnackBar(value["error"], context, isToaster: true);
+                                  }
+                                });
+                              } else if(orderProvider.paymentMethodIndex != -1){
                                 orderProvider.digitalPayment(
                                     orderNote: orderNote,
                                   customerId: Provider.of<AuthProvider>(context, listen: false).isLoggedIn()?
@@ -159,9 +199,9 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                                   builder: (context, profile,_) {
                                     return WalletPayment(
                                       currentBalance: profile.balance,
-                                      orderAmount: _order + widget.shippingFee - widget.discount - _couponDiscount! + widget.tax,
+                                      orderAmount: _order + (shippingPrice > 0 ? shippingPrice : widget.shippingFee) - widget.discount - _couponDiscount! + widget.tax,
                                       onTap: (){
-                                        if(profile.balance! < (_order + widget.shippingFee - widget.discount - _couponDiscount! + widget.tax)){
+                                        if(profile.balance! < (_order + (shippingPrice > 0 ? shippingPrice : widget.shippingFee) - widget.discount - _couponDiscount! + widget.tax)){
                                           showCustomSnackBar(getTranslated('insufficient_balance', context), context, isToaster: true);
                                         }else{
                                           Navigator.pop(context);
@@ -177,8 +217,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                                     );
                                   }
                                 ), dismissible: false, isFlip: true);
-                              }
-                              else {
+                              } else {
 
                               }
                             }
@@ -200,6 +239,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
         builder: (context, authProvider,_) {
           return Consumer<OrderProvider>(
             builder: (context, orderProvider,_) {
+
               return Column(children: [
 
 
@@ -209,7 +249,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
 
                       Padding(padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
-                        child: ShippingDetailsWidget(hasPhysical: widget.hasPhysical, billingAddress: _billingAddress)),
+                        child: ShippingDetailsWidget(groupId: widget.cartList.first.cartGroupId, hasPhysical: widget.hasPhysical, billingAddress: _billingAddress, amount: widget.totalOrderAmount)),
 
 
                       if(Provider.of<AuthProvider>(context, listen: false).isLoggedIn())
@@ -237,13 +277,13 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                               widget.quantity>1?
                               AmountWidget(title: '${getTranslated('sub_total', context)} ${' (${widget.quantity} ${getTranslated('items', context)}) '}', amount: PriceConverter.convertPrice(context, _order)):
                               AmountWidget(title: '${getTranslated('sub_total', context)} ${'(${widget.quantity} ${getTranslated('item', context)})'}', amount: PriceConverter.convertPrice(context, _order)),
-                              AmountWidget(title: getTranslated('shipping_fee', context), amount: PriceConverter.convertPrice(context, widget.shippingFee)),
+                              AmountWidget(title: getTranslated('shipping_fee', context), amount: PriceConverter.convertPrice(context, (shippingPrice > 0 ? shippingPrice : widget.shippingFee))),
                               AmountWidget(title: getTranslated('discount', context), amount: PriceConverter.convertPrice(context, widget.discount)),
                               AmountWidget(title: getTranslated('coupon_voucher', context), amount: PriceConverter.convertPrice(context, _couponDiscount)),
                               AmountWidget(title: getTranslated('tax', context), amount: PriceConverter.convertPrice(context, widget.tax)),
                               Divider(height: 5, color: Theme.of(context).hintColor),
                               AmountWidget(title: getTranslated('total_payable', context), amount: PriceConverter.convertPrice(context,
-                                  (_order + widget.shippingFee - widget.discount - _couponDiscount! + widget.tax))),
+                                  (_order + (shippingPrice > 0 ? shippingPrice : widget.shippingFee) - widget.discount - _couponDiscount! + widget.tax))),
                             ]);
                           },
                         ),
@@ -284,18 +324,77 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
   void _callback(bool isSuccess, String message, String orderID) async {
     if(isSuccess) {
-        Navigator.of(Get.context!).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const DashBoardScreen()), (route) => false);
-        showAnimatedDialog(context, OrderPlaceSuccessDialog(
-          icon: Icons.check,
-          title: getTranslated('order_placed', context),
-          description: getTranslated('your_order_placed', context),
-          isFailed: false,
-        ), dismissible: false, isFlip: true);
+      Navigator.of(Get.context!).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const DashBoardScreen()), (route) => false);
+      showAnimatedDialog(context, OrderPlaceSuccessDialog(
+        icon: Icons.check,
+        title: getTranslated('order_placed', context),
+        description: getTranslated('your_order_placed', context),
+        isFailed: false,
+      ), dismissible: false, isFlip: true);
 
       Provider.of<OrderProvider>(context, listen: false).stopLoader();
     }else {
       showCustomSnackBar(message, context, isToaster: true);
     }
+  }
+
+  void tinkof_call(String url) async {
+    var _isLoading = false;
+
+    showModalBottomSheet(backgroundColor: Colors.white, useSafeArea: true, isDismissible: false, enableDrag: false, isScrollControlled: true, context: context, builder: (_) {
+      final double width = MediaQuery.of(context).size.width;
+      final double height = MediaQuery.of(context).size.height;
+
+      return SafeArea(
+          top: true,
+          child: StatefulBuilder(builder: (context, state) {
+            return Stack(
+                alignment: Alignment.center,
+                children: [
+                  InAppWebView(
+                    initialUrlRequest: URLRequest(url: Uri.parse(url)),
+                    initialOptions: options,
+                    onLoadStop: (controller, url) async {
+                      if (!_isLoading) {
+                        state(() {
+                          _isLoading = true;
+                        });
+                      }
+                    },
+                    onLoadStart: (controller, url) {
+                      if (url!.path.contains('tinkof-success')) {
+                        state(() {
+                          _isLoading = false;
+                        });
+
+                        Navigator.of(Get.context!).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const DashBoardScreen()), (route) => false);
+                        showAnimatedDialog(context, OrderPlaceSuccessDialog(
+                          icon: Icons.check,
+                          title: getTranslated('order_placed', context),
+                          description: getTranslated('your_order_placed', context),
+                          isFailed: false,
+                        ), dismissible: false, isFlip: true);
+                        Provider.of<CartProvider>(context, listen: false).setSdekPvz(PvzModel());
+                        Provider.of<OrderProvider>(context, listen: false).stopLoader();
+                      } else if (url.path.contains('tinkof-failure')) {
+                        showCustomSnackBar('Произошла ошибка оплаты', context, isToaster: true);
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+
+                  if (!_isLoading) Container(
+                    width: width,
+                    height: height,
+                    alignment: Alignment.center,
+                    color: Colors.white,
+                    child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor)),
+                  ),
+                ]
+            );
+          })
+      );
+    });
   }
 }
 

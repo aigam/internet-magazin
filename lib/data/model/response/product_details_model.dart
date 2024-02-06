@@ -56,61 +56,62 @@ class ProductDetailsModel {
   Seller? _seller;
   int? wishList;
 
-  ProductDetailsModel({
-    int? id,
-    String? addedBy,
-    int? userId,
-    String? name,
-    String? slug,
-    String? productType,
-    List<CategoryIds>? categoryIds,
-    int? brandId,
-    String? unit,
-    int? minQty,
-    int? refundable,
-    String? digitalProductType,
-    String? digitalFileReady,
-    List<String>? images,
-    List<ColorImage>? colorImage,
-    String? thumbnail,
-    int? featured,
-    String? videoProvider,
-    String? videoUrl,
-    List<Colors>? colors,
-    int? variantProduct,
-    List<int>? attributes,
-    List<ChoiceOptions>? choiceOptions,
-    List<Variation>? variation,
-    int? published,
-    double? unitPrice,
-    double? purchasePrice,
-    double? tax,
-    String? taxModel,
-    String? taxType,
-    double? discount,
-    String? discountType,
-    int? currentStock,
-    int? minimumOrderQty,
-    String? details,
-    int? freeShipping,
-    String? createdAt,
-    String? updatedAt,
-    int? status,
-    int? featuredStatus,
-    String? metaTitle,
-    String? metaDescription,
-    String? metaImage,
-    int? requestStatus,
-    String? deniedNote,
-    double? shippingCost,
-    int? multiplyQty,
-    String? code,
-    int? reviewsCount,
-    String? averageReview,
-    List<Reviews>? reviews,
-    Seller? seller,
-    int? wishList,
-  }) {
+
+  ProductDetailsModel(
+      {int? id,
+        String? addedBy,
+        int? userId,
+        String? name,
+        String? slug,
+        String? productType,
+        List<CategoryIds>? categoryIds,
+        int? brandId,
+        String? unit,
+        int? minQty,
+        int? refundable,
+        String? digitalProductType,
+        String? digitalFileReady,
+        List<String>? images,
+        List<ColorImage>? colorImage,
+        String? thumbnail,
+        int? featured,
+        String? videoProvider,
+        String? videoUrl,
+        List<Colors>? colors,
+        int? variantProduct,
+        List<int>? attributes,
+        List<ChoiceOptions>? choiceOptions,
+        List<Variation>? variation,
+        int? published,
+        double? unitPrice,
+        double? purchasePrice,
+        double? tax,
+        String? taxModel,
+        String? taxType,
+        double? discount,
+        String? discountType,
+        int? currentStock,
+        int? minimumOrderQty,
+        String? details,
+        int? freeShipping,
+        String? createdAt,
+        String? updatedAt,
+        int? status,
+        int? featuredStatus,
+        String? metaTitle,
+        String? metaDescription,
+        String? metaImage,
+        int? requestStatus,
+        String? deniedNote,
+        double? shippingCost,
+        int? multiplyQty,
+        String? code,
+        int? reviewsCount,
+        String? averageReview,
+        List<Reviews>? reviews,
+        Seller? seller,
+        int? wishList,
+      }) {
     if (id != null) {
       _id = id;
     }
@@ -270,6 +271,7 @@ class ProductDetailsModel {
       _seller = seller;
     }
     this.wishList;
+
   }
 
   int? get id => _id;
@@ -344,7 +346,7 @@ class ProductDetailsModel {
     _refundable = json['refundable'];
     _digitalProductType = json['digital_product_type'];
     _digitalFileReady = json['digital_file_ready'];
-    _images = json['images'];
+    _images = json['images'] != null ? json['images'].cast<String>() : [];
     if (json['color_image'] != null) {
       _colorImage = <ColorImage>[];
       json['color_image'].forEach((v) {
@@ -384,9 +386,9 @@ class ProductDetailsModel {
     _discount = json['discount'].toDouble();
     _discountType = json['discount_type'];
     _currentStock = json['current_stock'];
-    if (json['minimum_order_qty'] != null) {
+    if(json['minimum_order_qty'] != null){
       _minimumOrderQty = int.parse(json['minimum_order_qty'].toString());
-    } else {
+    }else{
       _minimumOrderQty = 1;
     }
 
@@ -401,7 +403,7 @@ class ProductDetailsModel {
     _metaImage = json['meta_image'];
     _requestStatus = int.parse(json['request_status'].toString());
     _deniedNote = json['denied_note'];
-    _shippingCost = double.tryParse(json['shipping_cost'] ?? '0');
+    _shippingCost = json['shipping_cost'] != null ? json['shipping_cost'].toDouble() : 0.0;
     _multiplyQty = json['multiply_qty'];
     _code = json['code'];
     _reviewsCount = int.parse(json['reviews_count'].toString());
@@ -413,14 +415,16 @@ class ProductDetailsModel {
       });
     }
     _seller = json['seller'] != null ? Seller.fromJson(json['seller']) : null;
-    if (json['wish_list_count'] != null) {
-      try {
+    if(json['wish_list_count'] != null){
+      try{
         wishList = json['wish_list_count'];
-      } catch (e) {
+      }catch(e){
         wishList = int.parse(json['wish_list_count'].toString());
       }
+
     }
   }
+
 }
 
 class CategoryIds {
@@ -438,6 +442,7 @@ class CategoryIds {
 
   String? get id => _id;
   int? get position => _position;
+
 
   CategoryIds.fromJson(Map<String, dynamic> json) {
     _id = json['id'];
@@ -468,6 +473,7 @@ class Colors {
   String? get name => _name;
   String? get code => _code;
 
+
   Colors.fromJson(Map<String, dynamic> json) {
     _name = json['name'];
     _code = json['code'];
@@ -480,6 +486,8 @@ class Colors {
     return data;
   }
 }
+
+
 
 class Reviews {
   int? _id;
@@ -495,15 +503,15 @@ class Reviews {
 
   Reviews(
       {int? id,
-      int? productId,
-      int? customerId,
-      String? comment,
-      String? attachment,
-      int? rating,
-      int? status,
-      String? createdAt,
-      String? updatedAt,
-      Customer? customer}) {
+        int? productId,
+        int? customerId,
+        String? comment,
+        String? attachment,
+        int? rating,
+        int? status,
+        String? createdAt,
+        String? updatedAt,
+        Customer? customer}) {
     if (id != null) {
       _id = id;
     }
@@ -547,6 +555,7 @@ class Reviews {
   String? get updatedAt => _updatedAt;
   Customer? get customer => _customer;
 
+
   Reviews.fromJson(Map<String, dynamic> json) {
     _id = json['id'];
     _productId = json['product_id'];
@@ -557,8 +566,9 @@ class Reviews {
     _status = json['status'];
     _createdAt = json['created_at'];
     _updatedAt = json['updated_at'];
-    _customer =
-        json['customer'] != null ? Customer.fromJson(json['customer']) : null;
+    _customer = json['customer'] != null
+        ? Customer.fromJson(json['customer'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -587,14 +597,14 @@ class Customer {
   String? _image;
   String? _email;
 
-  Customer({
-    int? id,
-    String? fName,
-    String? lName,
-    String? phone,
-    String? image,
-    String? email,
-  }) {
+  Customer(
+      {int? id,
+        String? fName,
+        String? lName,
+        String? phone,
+        String? image,
+        String? email,
+      }) {
     if (id != null) {
       _id = id;
     }
@@ -613,6 +623,7 @@ class Customer {
     if (email != null) {
       _email = email;
     }
+
   }
 
   int? get id => _id;
@@ -622,6 +633,7 @@ class Customer {
   String? get image => _image;
   String? get email => _email;
 
+
   Customer.fromJson(Map<String, dynamic> json) {
     _id = json['id'];
     _fName = json['f_name'];
@@ -629,6 +641,7 @@ class Customer {
     _phone = json['phone'];
     _image = json['image'];
     _email = json['email'];
+
   }
 
   Map<String, dynamic> toJson() {
@@ -643,6 +656,7 @@ class Customer {
     return data;
   }
 }
+
 
 class ColorImage {
   String? color;
@@ -661,4 +675,5 @@ class ColorImage {
     color = json['color'];
     imageName = json['image_name'];
   }
+
 }
